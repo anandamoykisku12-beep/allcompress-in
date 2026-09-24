@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AllCompress.IN - Free File, Photo, PDF Compressor</title>
+<meta name="description" content="AllCompress.IN - India's No.1 Free All in One Compressor. Photo 20KB 50KB, Passport, HD Quality, PDF, ZIP - 100% Free for Student, Business, Govt">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,sans-serif}
+body{background:#0a0a0b;color:#fff}
+.header{background:linear-gradient(135deg,#6d28d9,#ec4899);padding:24px;text-align:center}
+.header h1{font-size:30px;font-weight:900}
+.header p{margin-top:6px;font-size:14px;color:#f3e8ff}
+.tabs{display:flex;gap:8px;padding:14px;justify-content:center;flex-wrap:wrap}
+.tab{padding:11px 20px;border-radius:999px;background:#1f1f23;border:1px solid #333;font-weight:700;cursor:pointer;transition:0.2s}
+.tab.active{background:#fff;color:#000}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:#17171a;border:1px solid #26262b;border-radius:20px;padding:20px;margin-bottom:18px}
+.drop{border:2px dashed #7c3aed;border-radius:16px;padding:30px;text-align:center;cursor:pointer;background:#111113}
+.btn{padding:13px;border-radius:12px;border:0;font-weight:800;cursor:pointer;width:100%;margin-top:10px;transition:0.2s}
+.btn:hover{opacity:0.9}
+.btn-p{background:#fff;color:#000}
+.btn-s{background:#27272a;color:#fff;border:1px solid #3f3f46}
+.row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.row>*{flex:1;min-width:120px}
+input,select{background:#0a0a0b;border:1px solid #3f3f46;border-radius:10px;padding:11px;color:#fff;width:100%}
+#stats{margin-top:10px;font-size:13px;color:#a1a1aa;text-align:center}
+#fList, #pdfList{margin-top:12px;font-size:13px;color:#10b981}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AllCompress.IN - ALL IN ONE</h1>
+  <p>File, Photo, PDF Compressor | Resize | HD Quality | Convert | Student, Business, Govt</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="tab('photo')">📸 Photo</div>
+  <div class="tab" onclick="tab('pdf')">📄 PDF</div>
+  <div class="tab" onclick="tab('file')">📁 ZIP</div>
+  <div class="tab" onclick="tab('govt')">🏛️ Govt</div>
+</div>
+
+<div class="wrap">
+  <div id="photoSec">
+    <div class="card">
+      <h3>📸 Photo Compressor 20KB to 200KB</h3>
+      <div class="drop" onclick="pInput.click()">
+        <input type="file" id="pInput" accept="image/*" hidden>
+        📤 Photo Upload<br><small style="color:#888;">JPG, PNG, WEBP</small>
+      </div>
+      <div class="row">
+        <input type="number" id="pW" placeholder="Width (px)">
+        <input type="number" id="pH" placeholder="Height (px)">
+        <input type="number" id="pQ" value="75" placeholder="Quality (1-100)" min="1" max="100">
+      </div>
+      <div class="row">
+        <select id="preset" onchange="setP(this.value)">
+          <option value="">-- Govt / Custom Preset --</option>
+          <option value="20">20KB Signature</option>
+          <option value="50">50KB Photo</option>
+          <option value="100">100KB Document</option>
+          <option value="200">200KB Document</option>
+          <option value="413x531">Passport Size (413x531)</option>
+          <option value="350x350">Aadhaar Photo (350x350)</option>
+        </select>
+        <select id="fmt">
+          <option value="jpeg">JPG</option>
+          <option value="png">PNG</option>
+          <option value="webp">WEBP</option>
+        </select>
+      </div>
+      <div class="row">
+        <button class="btn btn-p" onclick="doCompress()">⚡ Compress & Download</button>
+        <button class="btn btn-s" onclick="doHD()">✨ HD 2X</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-s" onclick="doBgWhite()">🤍 White BG</button>
+      </div>
+      <canvas id="can" style="display:none"></canvas>
+      <div id="stats"></div>
+    </div>
+  </div>
+
+  <div id="pdfSec" style="display:none">
+    <div class="card">
+      <h3>📄 PDF Tools</h3>
+      <div class="drop" onclick="pdfI.click()">
+        <input type="file" id="pdfI" accept=".pdf" multiple hidden>
+        📄 Upload PDF File(s)
+      </div>
+      <div id="pdfList"></div>
+    </div>
+  </div>
+
+  <div id="fileSec" style="display:none">
+    <div class="card">
+      <h3>📁 ZIP Compressor</h3>
+      <div class="drop" onclick="fI.click()">
+        <input type="file" id="fI" multiple hidden>
+        📁 Upload Files to Compress
+      </div>
+      <div id="fList"></div>
+      <button class="btn btn-p" onclick="makeZip()">📦 Download ZIP Archive</button>
+    </div>
+  </div>
+
+  <div id="govtSec" style="display:none">
+    <div class="card">
+      <h3>🏛️ Govt Jobs Quick Presets</h3>
+      <p style="font-size:13px; color:#aaa; margin-bottom:10px;">Select a preset below to auto-configure photo compression settings:</p>
+      <div class="row">
+        <button class="btn btn-s" onclick="setP('20');tab('photo')">20KB Signature</button>
+        <button class="btn btn-s" onclick="setP('50');tab('photo')">50KB Photo</button>
+        <button class="btn btn-s" onclick="setP('413x531');tab('photo')">Passport Photo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let imgObj = null;
+let fileOrig = null;
+window.targetKB = null;
+
+const pInput = document.getElementById('pInput');
+const can = document.getElementById('can');
+const ctx = can.getContext('2d');
+
+pInput.onchange = e => {
+  fileOrig = e.target.files[0];
+  if (!fileOrig) return;
+
+  let r = new FileReader();
+  r.onload = ev => {
+    imgObj = new Image();
+    imgObj.onload = () => {
+      can.width = imgObj.width;
+      can.height = imgObj.height;
+      ctx.drawImage(imgObj, 0, 0);
+      document.getElementById('pW').value = imgObj.width;
+      document.getElementById('pH').value = imgObj.height;
+      document.getElementById('stats').innerText = `Uploaded: ${imgObj.width}x${imgObj.height} px | Size: ${(fileOrig.size / 1024).toFixed(1)} KB`;
+    };
+    imgObj.src = ev.target.result;
+  };
+  r.readAsDataURL(fileOrig);
+};
+
+function setP(v) {
+  if (!v) {
+    window.targetKB = null;
+    return;
+  }
+  if (v.includes('x')) {
+    let [w, h] = v.split('x');
+    document.getElementById('pW').value = w;
+    document.getElementById('pH').value = h;
+    window.targetKB = null;
+  } else {
+    window.targetKB = parseInt(v, 10);
+  }
+}
+
+function tab(t) {
+  const tabs = ['photo', 'pdf', 'file', 'govt'];
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', tabs[i] === t);
+  });
+  document.getElementById('photoSec').style.display = t === 'photo' ? 'block' : 'none';
+  document.getElementById('pdfSec').style.display = t === 'pdf' ? 'block' : 'none';
+  document.getElementById('fileSec').style.display = t === 'file' ? 'block' : 'none';
+  document.getElementById('govtSec').style.display = t === 'govt' ? 'block' : 'none';
+}
+
+function doCompress() {
+  if (!imgObj) {
+    alert('Prothome ekti photo upload karun!');
+    return;
+  }
+  let w = parseInt(document.getElementById('pW').value) || imgObj.width;
+  let h = parseInt(document.getElementById('pH').value) || imgObj.height;
+  let q = (parseInt(document.getElementById('pQ').value) || 75) / 100;
+  let fmt = document.getElementById('fmt').value;
+
+  can.width = w;
+  can.height = h;
+  ctx.clearRect(0, 0, w, h);
+  ctx.drawImage(imgObj, 0, 0, w, h);
+
+  let attempt = (qual) => {
+    can.toBlob(b => {
+      if (!b) return;
+      
+      let isPng = (fmt === 'png');
+
+      if (window.targetKB && (b.size / 1024) > window.targetKB && qual > 0.1 && !isPng) {
+        attempt(qual - 0.05);
+        return;
+      }
+
+      if (isPng && window.targetKB && (b.size / 1024) > window.targetKB) {
+        alert(`PNG format-e target size (${window.targetKB}KB) er niche komano jay na. Target size pete JPG ba WEBP select karun.`);
+      }
+
+      let a = document.createElement('a');
+      a.href = URL.createObjectURL(b);
+      a.download = `AllCompress_${w}x${h}.${fmt}`;
+      a.click();
+      
+      document.getElementById('stats').innerText = `Compressed: ${w}x${h} px | Final Size: ${(b.size / 1024).toFixed(1)} KB`;
+    }, 'image/' + fmt, qual);
+  };
+
+  attempt(q);
+}
+
+function doHD() {
+  if (!imgObj) {
+    alert('Prothome ekti photo upload karun!');
+    return;
+  }
+  can.width = imgObj.width * 2;
+  can.height = imgObj.height * 2;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(imgObj, 0, 0, can.width, can.height);
+  can.toBlob(b => {
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = 'HD_2x.jpg';
+    a.click();
+  }, 'image/jpeg', 0.95);
+}
+
+function doBgWhite() {
+  if (!imgObj) {
+    alert('Prothome ekti photo upload karun!');
+    return;
+  }
+  let w = parseInt(document.getElementById('pW').value) || imgObj.width;
+  let h = parseInt(document.getElementById('pH').value) || imgObj.height;
+  can.width = w;
+  can.height = h;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(imgObj, 0, 0, w, h);
+  can.toBlob(b => {
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = 'White_BG.jpg';
+    a.click();
+  }, 'image/jpeg', 0.92);
+}
+
+// PDF Selection
+const pdfI = document.getElementById('pdfI');
+pdfI.onchange = e => {
+  let pdfFiles = Array.from(e.target.files);
+  if (pdfFiles.length > 0) {
+    document.getElementById('pdfList').innerHTML = pdfFiles.map(f => `• ${f.name} (${(f.size/1024).toFixed(1)} KB)`).join('<br>');
+  }
+};
+
+// ZIP Generation
+let allFiles = [];
+const fI = document.getElementById('fI');
+fI.onchange = e => {
+  allFiles = Array.from(e.target.files);
+  if (allFiles.length > 0) {
+    document.getElementById('fList').innerHTML = allFiles.map(f => `• ${f.name} (${(f.size/1024).toFixed(1)} KB)`).join('<br>');
+  }
+};
+
+async function makeZip() {
+  if (allFiles.length === 0) {
+    alert('Kono file upload kora hoyni!');
+    return;
+  }
+  let zip = new JSZip();
+  allFiles.forEach(f => zip.file(f.name, f));
+  let c = await zip.generateAsync({ type: 'blob' });
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(c);
+  a.download = 'AllCompress.zip';
+  a.click();
+}
+</script>
+</body>
+</html>
+```
